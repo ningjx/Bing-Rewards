@@ -8,8 +8,6 @@
 // @exclude      https://rewards.bing.com/*
 // @license      GNU GPLv3
 // @icon         https://www.bing.com/favicon.ico
-// @connect      gumengya.com
-// @connect      192.168.50.200:1880
 // @run-at       document-end
 // @grant        GM_registerMenuCommand
 // @grant        GM_addStyle
@@ -34,8 +32,8 @@ var default_search_words = ["盛年不重来，一日难再晨", "千里之行�
     "吾生也有涯，而知也无涯", "纸上得来终觉浅，绝知此事要躬行", "学无止境", "己所不欲，勿施于人", "天将降大任于斯人也", "鞠躬尽瘁，死而后已", "书到用时方恨少", "天下兴亡，匹夫有责",
     "人无远虑，必有近忧", "为中华之崛起而读书", "一日无书，百事荒废", "岂能尽如人意，但求无愧我心", "人生自古谁无死，留取丹心照汗青", "吾生也有涯，而知也无涯", "生于忧患，死于安乐",
     "言必信，行必果", "读书破万卷，下笔如有神", "夫君子之行，静以修身，俭以养德", "老骥伏枥，志在千里", "一日不读书，胸臆无佳想", "王侯将相宁有种乎", "淡泊以明志。宁静而致远,", "卧龙跃马终黄土"]
-//var keywords_source = ['douyin'];
-var keywords_source = ['BaiduHot', 'TouTiaoHot', 'WeiBoHot', 'DouYinHot'];
+
+var keywords_source = ['baidu', 'toutiao'];//, 'weibo', 'douyin'];
 
 function getHotWordsCache(source) {
     const cacheKey = `Ning_Cache_${source}`;
@@ -75,43 +73,22 @@ function hot_dic() {
             return cached;
         }
 
-        const url = `https://api.gmya.net/Api/${source}?format=json&appkey=`;
+        const url = ``;
+
         return fetch(url)
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                return response.json();
+            })
             .then(data => {
-                if (data.data?.some(item => item.title)) {
-                    const words = data.data.map(item => item.title);
-                    setHotWordsCache(source, words); // 写入缓存
-                    return words;
-                }
+                if (Array.isArray(data)) return data;
                 return [];
             })
-            .catch(() => []);
+            .catch(error => {
+                console.error(`Failed to fetch keywords from ${url}:`, error);
+                return [];
+            });
     });
-
-    //const authToken = ""; //授权令牌
-
-    //const promises = keywords_source.map(source => {
-    //    const url = `http://192.168.50.200:1880/endpoint/hotsearch?source=${source}`;
-    //    // 修改fetch调用，添加headers配置
-    //    return fetch(url, {
-    //        headers: {
-    //            "Authorization": `Basic ${authToken}`
-    //        }
-    //    })
-    //        .then(response => {
-    //            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    //            return response.json();
-    //        })
-    //        .then(data => {
-    //            if (Array.isArray(data)) return data;
-    //            return [];
-    //        })
-    //        .catch(error => {
-    //            console.error(`Failed to fetch keywords from ${url}:`, error);
-    //            return [];
-    //        });
-    //});
 
     return Promise.all(promises)
         .then(results => {
