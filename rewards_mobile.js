@@ -32,7 +32,7 @@ var default_search_words = ["盛年不重来，一日难再晨", "千里之行�
     "吾生也有涯，而知也无涯", "纸上得来终觉浅，绝知此事要躬行", "学无止境", "己所不欲，勿施于人", "天将降大任于斯人也", "鞠躬尽瘁，死而后已", "书到用时方恨少", "天下兴亡，匹夫有责",
     "人无远虑，必有近忧", "为中华之崛起而读书", "一日无书，百事荒废", "岂能尽如人意，但求无愧我心", "人生自古谁无死，留取丹心照汗青", "吾生也有涯，而知也无涯", "生于忧患，死于安乐"]
 
-var keywords_source =['douyin','baidu','toutiao','weibo'];
+var keywords_source =['toutiao','weibo'];//'douyin','baidu',
 
 function hot_dic() {
     // Fisher-Yates 洗牌算法
@@ -44,16 +44,10 @@ function hot_dic() {
         return array;
     }
 
-    const authToken = ""; // 替换为实际的授权令牌
-
     const promises = keywords_source.map(source => {
-    const url = `http://192.168.50.200:1880/endpoint/hotsearch?source=${source}`;
+    const url = ``;
     // 修改fetch调用，添加headers配置
-    return fetch(url, {
-        headers: {
-            "Authorization": `Basic ${authToken}`
-        }
-    })
+    return fetch(url)
     .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         return response.json();
