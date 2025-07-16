@@ -38,10 +38,13 @@ var keywords_source = ['baidu', 'toutiao'];//, 'weibo', 'douyin'];
 function getHotWordsCache(source) {
     const cacheKey = `Ning_Cache_${source}`;
     const cachedData = GM_getValue(cacheKey);
-    return (Date.now() - cachedData?.timestamp < CACHE_EXPIRE_TIME) ? cachedData.data : null;
+    const result = (Date.now() - cachedData?.timestamp < CACHE_EXPIRE_TIME) ? cachedData.data : null;
+    if (result) { console.log('[命中缓存]', source); }
+    return result;
 }
 
 function setHotWordsCache(source, data) {
+    console.log('[设置缓存]', source);
     GM_setValue(`Ning_Cache_${source}`, {
         timestamp: Date.now(),
         data: data
@@ -58,21 +61,17 @@ function hot_dic() {
         return array;
     }
 
-    //const cached = getHotWordsCache('Ning_Cache_all');
-    //if (cached) {
-    //    console.log('[命中缓存] Ning_Cache_all');
-    //    console.log(cached);
-    //    return cached;
-    //}
+    const cached = getHotWordsCache('Ning_Cache_all');
+    if (cached) {
+        return new Promise((resolve) => {
+            resolve(cached);
+        })
+    }
+    else {
+        console.log('[未命中缓存] 正在获取热搜词...');
+    }
 
     const promises = keywords_source.map(source => {
-        const cached = getHotWordsCache(source);
-        if (cached) {
-            console.log('[命中缓存]', source);
-            console.log(cached);
-            return cached;
-        }
-
         const url = ``;
 
         return fetch(url)
@@ -104,7 +103,6 @@ function hot_dic() {
 }
 hot_dic()
     .then(names => {
-        //   console.log(names[0]);
         search_words = names;
         exec()
     })
@@ -117,10 +115,8 @@ let menu1 = GM_registerMenuCommand('开始', function () {
     GM_setValue('Cnt', 0); // 将计数器重置为0
     location.href = "https://www.bing.com/?br_msg=Please-Wait"; // 跳转到Bing首页
     // 清除热搜词缓存
-    keywords_source.forEach(source => {
-        console.log(`清除缓存: Ning_Cache_${source}`);
-        localStorage.removeItem(`Ning_Cache_${source}`);
-    });
+    setHotWordsCache('Ning_Cache_all', null);
+    console.log(`清除缓存: Ning_Cache_all`);
 }, 'o');
 
 // 定义菜单命令：停止
@@ -130,10 +126,8 @@ let menu2 = GM_registerMenuCommand('停止', function () {
 
 let menu3 = GM_registerMenuCommand('清除缓存', function () {
     // 清除热搜词缓存
-    keywords_source.forEach(source => {
-        console.log(`清除缓存: Ning_Cache_${source}`);
-        localStorage.removeItem(`Ning_Cache_${source}`);
-    });
+    setHotWordsCache('Ning_Cache_all', null);
+    console.log(`清除缓存: Ning_Cache_all`);
 }, 'o');
 
 // 自动将字符串中的字符进行替换
@@ -185,7 +179,12 @@ function exec() {
     // 根据计数器的值选择搜索引擎
     if (currentSearchCount <= max_rewards / 2) {
         let tt = document.getElementsByTagName("title")[0];
-        tt.innerHTML = "[" + currentSearchCount + " / " + max_rewards + "] " + tt.innerHTML; // 在标题中显示当前搜索次数
+        if (!tt) {
+            tt = tt = document.querySelector('title');
+        }
+        if (tt) {
+            tt.innerHTML = "[" + currentSearchCount + " / " + max_rewards + "] " + tt.innerHTML; // 在标题中显示当前搜索次数
+        }
         smoothScrollToBottom(); // 添加执行滚动页面到底部的操作
         GM_setValue('Cnt', currentSearchCount + 1); // 将计数器加1
         setTimeout(function () {
