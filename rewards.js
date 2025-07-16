@@ -185,6 +185,9 @@ function exec() {
         if (tt) {
             tt.innerHTML = "[" + currentSearchCount + " / " + max_rewards + "] " + tt.innerHTML; // 在标题中显示当前搜索次数
         }
+        else{
+            return;
+        }
         smoothScrollToBottom(); // 添加执行滚动页面到底部的操作
         GM_setValue('Cnt', currentSearchCount + 1); // 将计数器加1
         setTimeout(function () {
