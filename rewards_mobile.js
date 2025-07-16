@@ -21,7 +21,7 @@
 // @downloadURL https://update.greasyfork.org/scripts/480355/%E7%A7%BB%E5%8A%A8%E7%AB%AF%E5%BE%AE%E8%BD%AFRewards%E6%AF%8F%E6%97%A5%E4%BB%BB%E5%8A%A1%E8%84%9A%E6%9C%AC.user.js
 // @updateURL https://update.greasyfork.org/scripts/480355/%E7%A7%BB%E5%8A%A8%E7%AB%AF%E5%BE%AE%E8%BD%AFRewards%E6%AF%8F%E6%97%A5%E4%BB%BB%E5%8A%A1%E8%84%9A%E6%9C%AC.meta.js
 // ==/UserScript==
-
+const CACHE_EXPIRE_TIME = 3 * 60 * 60 * 1000;
 var max_rewards = 30; //重复执行的次数
 var pause_time = 960000; // 暂停时长建议为16分钟,也就是960000(60000毫秒=1分钟)
 var search_words = []; //搜索词
@@ -32,7 +32,23 @@ var default_search_words = ["盛年不重来，一日难再晨", "千里之行�
     "吾生也有涯，而知也无涯", "纸上得来终觉浅，绝知此事要躬行", "学无止境", "己所不欲，勿施于人", "天将降大任于斯人也", "鞠躬尽瘁，死而后已", "书到用时方恨少", "天下兴亡，匹夫有责",
     "人无远虑，必有近忧", "为中华之崛起而读书", "一日无书，百事荒废", "岂能尽如人意，但求无愧我心", "人生自古谁无死，留取丹心照汗青", "吾生也有涯，而知也无涯", "生于忧患，死于安乐"]
 
-var keywords_source =['toutiao','weibo'];//'douyin','baidu',
+var keywords_source = ['toutiao', 'weibo'];//'douyin','baidu',
+
+function getHotWordsCache(source) {
+    const cacheKey = `Ning_Cache_${source}`;
+    const cachedData = GM_getValue(cacheKey);
+    const result = (Date.now() - cachedData?.timestamp < CACHE_EXPIRE_TIME) ? cachedData.data : null;
+    if (result) { console.log('[命中缓存]', source); }
+    return result;
+}
+
+function setHotWordsCache(source, data) {
+    console.log('[设置缓存]', source);
+    GM_setValue(`Ning_Cache_${source}`, {
+        timestamp: Date.now(),
+        data: data
+    });
+}
 
 function hot_dic() {
     // Fisher-Yates 洗牌算法
@@ -44,38 +60,49 @@ function hot_dic() {
         return array;
     }
 
+    const cached = getHotWordsCache('Ning_Cache_all');
+    if (cached) {
+        return new Promise((resolve) => {
+            resolve(cached);
+        })
+    }
+    else {
+        console.log('[未命中缓存] 正在获取热搜词...');
+    }
+
     const promises = keywords_source.map(source => {
-    const url = ``;
-    // 修改fetch调用，添加headers配置
-    return fetch(url)
-    .then(response => {
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        return response.json();
-    })
-    .then(data => {
-        if (Array.isArray(data)) return data;
-        return []; 
-    })
-    .catch(error => {
-        console.error(`Failed to fetch keywords from ${url}:`, error);
-        return []; 
+        const url = ``;
+        // 修改fetch调用，添加headers配置
+        return fetch(url)
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                if (Array.isArray(data)) return data;
+                return [];
+            })
+            .catch(error => {
+                console.error(`Failed to fetch keywords from ${url}:`, error);
+                return [];
+            });
     });
-   });
 
     return Promise.all(promises)
         .then(results => {
             const merged = results.flat();
             const unique = [...new Set(merged)];
             const shuffled = shuffle(unique);
-            
+
             // 如果最终结果为空则返回打乱的默认词
-            return shuffled.length > 0 ? shuffled : shuffle([...default_search_words]);
+            const words = shuffled.length > 0 ? shuffled : shuffle([...default_search_words]);
+            setHotWordsCache('Ning_Cache_all', words); // 写入缓存
+            return words;
         });
 }
 
 hot_dic()
     .then(names => {
-        //   console.log(names[0]);
         search_words = names;
         exec()
     })
@@ -87,6 +114,9 @@ hot_dic()
 let menu1 = GM_registerMenuCommand('开始', function () {
     GM_setValue('Cnt', 0); // 将计数器重置为0
     location.href = "https://www.bing.com/?br_msg=Please-Wait"; // 跳转到Bing首页
+    // 清除热搜词缓存
+    setHotWordsCache('Ning_Cache_all', null);
+    console.log(`清除缓存: Ning_Cache_all`);
 }, 'o');
 
 // 定义菜单命令：停止
@@ -94,6 +124,11 @@ let menu2 = GM_registerMenuCommand('停止', function () {
     GM_setValue('Cnt', max_rewards + 10); // 将计数器设置为超过最大搜索次数，以停止搜索
 }, 'o');
 
+let menu3 = GM_registerMenuCommand('清除缓存', function () {
+    // 清除热搜词缓存
+    setHotWordsCache('Ning_Cache_all', null);
+    console.log(`清除缓存: Ning_Cache_all`);
+}, 'o');
 
 // 生成指定长度的包含大写字母、数字的随机字符串
 function generateRandomString(length) {
@@ -133,7 +168,7 @@ function exec() {
             // 检查是否需要暂停
             if ((currentSearchCount + 1) % 5 === 0) {
                 // 暂停指定时长
-                setTimeout(function() {
+                setTimeout(function () {
                     location.href = "https://www.bing.com/search?q=" + encodeURI(nowtxt) + "&form=" + randomString + "&cvid=" + randomCvid; // 在Bing搜索引擎中搜索
                 }, pause_time);
             } else {
@@ -151,7 +186,7 @@ function exec() {
             // 检查是否需要暂停
             if ((currentSearchCount + 1) % 5 === 0) {
                 // 暂停指定时长
-                setTimeout(function() {
+                setTimeout(function () {
                     location.href = "https://cn.bing.com/search?q=" + encodeURI(nowtxt) + "&form=" + randomString + "&cvid=" + randomCvid; // 在Bing搜索引擎中搜索
                 }, pause_time);
             } else {
@@ -159,8 +194,8 @@ function exec() {
             }
         }, randomDelay);
     }
-        // 实现平滑滚动到页面底部的函数
+    // 实现平滑滚动到页面底部的函数
     function smoothScrollToBottom() {
-            document.documentElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
-        }
+        document.documentElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
 }
