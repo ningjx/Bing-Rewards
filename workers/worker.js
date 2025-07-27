@@ -98,7 +98,12 @@ export default {
       //  words = await getALLHotSearchWords();
       //}
       return new Response(JSON.stringify(words, null, 2), {
-        headers: { 'content-type': 'application/json; charset=utf-8' }
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type',
+        }
       });
     }
     // 其他路径返回欢迎信息
