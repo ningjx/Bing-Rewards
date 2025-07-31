@@ -7,7 +7,7 @@
  *
  * Learn more at https://developers.cloudflare.com/workers/
  */
-import wordstxt from './words.txt';
+import wordstxt from './static/words.txt';
 // 热搜 API 信息配置
 const apiInfos = [
   { name: "baidu", url: "https://api.gmya.net/Api/BaiduHot?format=json&appkey=", keyword: "title" },
