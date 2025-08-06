@@ -5,5 +5,8 @@ workers_dev = false
 name = "api-tools"
 main = "worker.js"
 
+[vars]
+GMYA_KEY = " "
+
 [assets]
 directory = "./static"
