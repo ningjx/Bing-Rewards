@@ -9,20 +9,20 @@
  */
 import wordstxt from './static/words.txt';
 // 热搜 API 信息配置
-const apiInfos = [
-  { name: "baidu", url: "https://api.gmya.net/Api/BaiduHot?format=json&appkey=", keyword: "title" },
+const createApiInfos = (env) => [
+  { name: "baidu", url: `https://api.gmya.net/Api/BaiduHot?format=json&appkey=${env.GMYA_KEY}`, keyword: "title" },
   { name: "baidu", url: "https://zj.v.api.aa1.cn/api/baidu-rs/", keyword: "title" },
-  { name: "douyin", url: "https://api.gmya.net/Api/DouYinHot?format=json&appkey=", keyword: "title" },
+  { name: "douyin", url: `https://api.gmya.net/Api/DouYinHot?format=json&appkey=${env.GMYA_KEY}`, keyword: "title" },
   { name: "douyin", url: "https://v.api.aa1.cn/api/douyin-hot/", keyword: "word" },
-  { name: "toutiao", url: "https://api.gmya.net/Api/TouTiaoHot?format=json&appkey=", keyword: "title" },
+  { name: "toutiao", url: `https://api.gmya.net/Api/TouTiaoHot?format=json&appkey=${env.GMYA_KEY}`, keyword: "title" },
   { name: "toutiao", url: "https://free.wqwlkj.cn/wqwlapi/jrtt_hot.php?type=json", keyword: "name" },
-  { name: "weibo", url: "https://api.gmya.net/Api/WeiBoHot?format=json&appkey=", keyword: "title" },
+  { name: "weibo", url: `https://api.gmya.net/Api/WeiBoHot?format=json&appkey=${env.GMYA_KEY}`, keyword: "title" },
   { name: "weibo", url: "https://zj.v.api.aa1.cn/api/weibo-rs/", keyword: "title" },
-  { name: "zhihu", url: "https://api.gmya.net/Api/ZhiHuHot?format=json&appkey=", keyword: "title" },
+  { name: "zhihu", url: `https://api.gmya.net/Api/ZhiHuHot?format=json&appkey=${env.GMYA_KEY}`, keyword: "title" },
   { name: "zhihu", url: "https://v.api.aa1.cn/api/zhihu-news/index.php?aa1=xiarou", keyword: "title" },
-  { name: "bilibili", url: "https://api.gmya.net/Api/BiliBliHot?format=json&appkey=", keyword: "title" },
+  { name: "bilibili", url: `https://api.gmya.net/Api/BiliBliHot?format=json&appkey=${env.GMYA_KEY}`, keyword: "title" },
   { name: "bilibili", url: "https://v.api.aa1.cn/api/bilibili-rs/", keyword: "title" },
-  { name: "sougou", url: "https://api.gmya.net/Api/SoGouHot?format=json&appkey=", keyword: "title" }
+  { name: "sougou", url: `https://api.gmya.net/Api/SoGouHot?format=json&appkey=${env.GMYA_KEY}`, keyword: "title" }
 ];
 
 // 读取本地 words.txt 文件，返回字符串数组
@@ -31,12 +31,13 @@ async function getWordsFromTxt() {
 }
 
 // 根据 API 信息抓取热搜词
-async function getHotSearchWordsFromSource(source, wordsBackup) {
+async function getHotSearchWordsFromSource(source, wordsBackup, apiInfos) {
   const result = [];
   const apis = apiInfos.filter(a => a.name === source);
   if (!apis.length) return [];
   for (const api of apis) {
     try {
+      console.log("请求第三方API", api.url);
       const response = await fetch(api.url, {
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0',
@@ -68,7 +69,7 @@ async function getHotSearchWordsFromSource(source, wordsBackup) {
 }
 
 // 聚合所有热搜词，去重
-async function getALLHotSearchWords() {
+async function getALLHotSearchWords(apiInfos) {
   const wordsBackup = await getWordsFromTxt();
   const apiNames = [...new Set(apiInfos.map(a => a.name))];
   const allResults = await Promise.all(apiNames.map(name => getHotSearchWordsFromSource(name, wordsBackup)));
@@ -80,6 +81,8 @@ async function getALLHotSearchWords() {
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
+    // 创建 API 配置实例
+    const apiInfos = createApiInfos(env);
     // 入口为 https://xxx.workers.dev/hotsearch?source=xxxx
     if (url.pathname.toLowerCase() === '/hotsearch') {
       const source = url.searchParams.get('source');
@@ -88,9 +91,9 @@ export default {
       let words = [];
       if (source) {
         if (source === 'all') {
-          words = await getALLHotSearchWords();
+          words = await getALLHotSearchWords(apiInfos);
         } else {
-          words = await getHotSearchWordsFromSource(source, wordsBackup);
+          words = await getHotSearchWordsFromSource(source, wordsBackup, apiInfos);
         }
       } 
       //else {
