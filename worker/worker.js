@@ -83,6 +83,7 @@ export default {
     const url = new URL(request.url);
     // 创建 API 配置实例
     const apiInfos = createApiInfos(env);
+    console.log("apiInfos:", apiInfos);
     // 入口为 https://xxx.workers.dev/hotsearch?source=xxxx
     if (url.pathname.toLowerCase() === '/hotsearch') {
       const source = url.searchParams.get('source');
