@@ -72,7 +72,7 @@ async function getHotSearchWordsFromSource(source, wordsBackup, apiInfos) {
 async function getALLHotSearchWords(apiInfos) {
   const wordsBackup = await getWordsFromTxt();
   const apiNames = [...new Set(apiInfos.map(a => a.name))];
-  const allResults = await Promise.all(apiNames.map(name => getHotSearchWordsFromSource(name, wordsBackup)));
+  const allResults = await Promise.all(apiNames.map(name => getHotSearchWordsFromSource(name, wordsBackup, apiInfos)));
   // 扁平化、去重
   const allWords = Array.from(new Set(allResults.flat().filter(Boolean)));
   return allWords;
