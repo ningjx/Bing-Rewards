@@ -1,0 +1,5 @@
+{
+  "rewrites": [
+    { "source": "/hotsearch", "destination": "/hotsearch.js" }
+  ]
+}

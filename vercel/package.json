@@ -1,0 +1,10 @@
+{
+  "name": "bing-rewards-vercel",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "api/hotsearch.js",
+  "scripts": {
+    "dev": "vercel dev"
+  },
+  "dependencies": {}
+}
