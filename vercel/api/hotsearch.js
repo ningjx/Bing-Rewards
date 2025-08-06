@@ -3,19 +3,19 @@ import path from 'path';
 
 // 热搜 API 信息配置
 const apiInfos = [
-  { name: "baidu", url: "https://api.gmya.net/Api/BaiduHot?format=json&appkey=", keyword: "title" },
+  { name: "baidu", url: `https://api.gmya.net/Api/BaiduHot?format=json&appkey=${process.env['GMYA_KEY']||''}` , keyword: "title" },
   { name: "baidu", url: "https://zj.v.api.aa1.cn/api/baidu-rs/", keyword: "title" },
-  { name: "douyin", url: "https://api.gmya.net/Api/DouYinHot?format=json&appkey=", keyword: "title" },
+  { name: "douyin", url: `https://api.gmya.net/Api/DouYinHot?format=json&appkey=${process.env['GMYA_KEY']||''}` , keyword: "title" },
   { name: "douyin", url: "https://v.api.aa1.cn/api/douyin-hot/", keyword: "word" },
-  { name: "toutiao", url: "https://api.gmya.net/Api/TouTiaoHot?format=json&appkey=", keyword: "title" },
+  { name: "toutiao", url: `https://api.gmya.net/Api/TouTiaoHot?format=json&appkey=${process.env['GMYA_KEY']||''}` , keyword: "title" },
   { name: "toutiao", url: "https://free.wqwlkj.cn/wqwlapi/jrtt_hot.php?type=json", keyword: "name" },
-  { name: "weibo", url: "https://api.gmya.net/Api/WeiBoHot?format=json&appkey=", keyword: "title" },
+  { name: "weibo", url: `https://api.gmya.net/Api/WeiBoHot?format=json&appkey=${process.env['GMYA_KEY']||''}` , keyword: "title" },
   { name: "weibo", url: "https://zj.v.api.aa1.cn/api/weibo-rs/", keyword: "title" },
-  { name: "zhihu", url: "https://api.gmya.net/Api/ZhiHuHot?format=json&appkey=", keyword: "title" },
+  { name: "zhihu", url: `https://api.gmya.net/Api/ZhiHuHot?format=json&appkey=${process.env['GMYA_KEY']||''}` , keyword: "title" },
   { name: "zhihu", url: "https://v.api.aa1.cn/api/zhihu-news/index.php?aa1=xiarou", keyword: "title" },
-  { name: "bilibili", url: "https://api.gmya.net/Api/BiliBliHot?format=json&appkey=", keyword: "title" },
+  { name: "bilibili", url: `https://api.gmya.net/Api/BiliBliHot?format=json&appkey=${process.env['GMYA_KEY']||''}` , keyword: "title" },
   { name: "bilibili", url: "https://v.api.aa1.cn/api/bilibili-rs/", keyword: "title" },
-  { name: "sougou", url: "https://api.gmya.net/Api/SoGouHot?format=json&appkey=", keyword: "title" }
+  { name: "sougou", url: `https://api.gmya.net/Api/SoGouHot?format=json&appkey=${process.env['GMYA_KEY']||''}` , keyword: "title" }
 ];
 
 // 读取本地 words.txt 文件，返回字符串数组

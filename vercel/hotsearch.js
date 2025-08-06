@@ -3,7 +3,7 @@ import path from 'path';
 
 // 热搜 API 信息配置
 const apiInfos = [
-  { name: "baidu", url: "https://api.gmya.net/Api/BaiduHot?format=json&appkey=", keyword: "title" },
+  { name: "baidu", url: "https://api.gmya.net/Api/BaiduHot?format=json&appkey=${env.GMYA_KEY}", keyword: "title" },
   { name: "baidu", url: "https://zj.v.api.aa1.cn/api/baidu-rs/", keyword: "title" },
   { name: "douyin", url: "https://api.gmya.net/Api/DouYinHot?format=json&appkey=", keyword: "title" },
   { name: "douyin", url: "https://v.api.aa1.cn/api/douyin-hot/", keyword: "word" },
