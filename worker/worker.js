@@ -22,7 +22,8 @@ const createApiInfos = (env) => [
   { name: "zhihu", url: "https://v.api.aa1.cn/api/zhihu-news/index.php?aa1=xiarou", keyword: "title" },
   { name: "bilibili", url: `https://api.gmya.net/Api/BiliBliHot?format=json&appkey=${env.GMYA_KEY}`, keyword: "title" },
   { name: "bilibili", url: "https://v.api.aa1.cn/api/bilibili-rs/", keyword: "title" },
-  { name: "sougou", url: `https://api.gmya.net/Api/SoGouHot?format=json&appkey=${env.GMYA_KEY}`, keyword: "title" }
+  { name: "sougou", url: `https://api.gmya.net/Api/SoGouHot?format=json&appkey=${env.GMYA_KEY}`, keyword: "title" },
+  { name: "finlight", url: `https://api.finlight.me/v2/articles`, headers: { 'Content-Type': 'application/json', 'accept': 'application/json', 'X-API-KEY': env.Finlight_KEY }, body: "{\"pageSize\": \"100\"}", keyword: "title" }
 ];
 
 // 读取本地 words.txt 文件，返回字符串数组
@@ -37,11 +38,14 @@ async function getHotSearchWordsFromSource(source, wordsBackup, apiInfos) {
   if (!apis.length) return [];
   for (const api of apis) {
     try {
-      console.log("请求第三方API", api.url);
+      console.log("请求第三方API", api);
       // 设置 10 秒超时
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000);
-      const response = await fetch(api.url, {
+
+
+      // 构建请求配置
+      const requestConfig = {
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0',
           'Accept': 'application/json,text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
@@ -49,7 +53,22 @@ async function getHotSearchWordsFromSource(source, wordsBackup, apiInfos) {
           'accept-language': 'zh-CN,zh;q=0.9',
         },
         signal: controller.signal
-      });
+      };
+
+      // 如果API信息包含自定义headers，则合并到请求headers中
+      if (api.headers && typeof api.headers === 'object') {
+        requestConfig.headers = { ...requestConfig.headers, ...api.headers };
+      }
+
+      // 如果API信息包含body，则使用POST请求并添加body
+      if (api.body) {
+        requestConfig.method = 'POST';
+        requestConfig.body = api.body;
+      }
+
+      const response = await fetch(api.url, requestConfig);
+
+
       clearTimeout(timeoutId);
       if (response.ok) {
         const content = await response.text();
@@ -101,7 +120,7 @@ export default {
         } else {
           words = await getHotSearchWordsFromSource(source, wordsBackup, apiInfos);
         }
-      } 
+      }
       //else {
       //  // 未指定 source，返回所有平台的热搜词（去重）
       //  words = await getALLHotSearchWords();
