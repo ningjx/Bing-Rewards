@@ -102,6 +102,16 @@ async function getALLHotSearchWords(apiInfos) {
   return allWords;
 }
 
+// 聚合所有中文热搜词，去重
+async function getCNHotSearchWords(apiInfos) {
+  const wordsBackup = await getWordsFromTxt();
+  const apiNames = [...new Set(apiInfos.map(a => a.name).filter(name => name !== "en"))];
+  const allResults = await Promise.all(apiNames.map(name => getHotSearchWordsFromSource(name, wordsBackup, apiInfos)));
+  // 扁平化、去重
+  const allWords = Array.from(new Set(allResults.flat().filter(Boolean)));
+  return allWords;
+}
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
@@ -117,7 +127,11 @@ export default {
       if (source) {
         if (source === 'all') {
           words = await getALLHotSearchWords(apiInfos);
-        } else {
+        }
+        else if (source === 'cn') {
+          words = await getCNHotSearchWords(apiInfos);
+        }
+        else {
           words = await getHotSearchWordsFromSource(source, wordsBackup, apiInfos);
         }
       }
