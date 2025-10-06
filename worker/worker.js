@@ -23,7 +23,7 @@ const createApiInfos = (env) => [
   { name: "bilibili", url: `https://api.gmya.net/Api/BiliBliHot?format=json&appkey=${env.GMYA_KEY}`, keyword: "title" },
   { name: "bilibili", url: "https://v.api.aa1.cn/api/bilibili-rs/", keyword: "title" },
   { name: "sougou", url: `https://api.gmya.net/Api/SoGouHot?format=json&appkey=${env.GMYA_KEY}`, keyword: "title" },
-  { name: "finlight", url: `https://api.finlight.me/v2/articles`, headers: { 'Content-Type': 'application/json', 'accept': 'application/json', 'X-API-KEY': env.Finlight_KEY }, body: "{\"pageSize\": \"100\"}", keyword: "title" }
+  { name: "en", url: `https://api.finlight.me/v2/articles`, headers: { 'Content-Type': 'application/json', 'accept': 'application/json', 'X-API-KEY': env.Finlight_KEY }, body: "{\"pageSize\": \"100\"}", keyword: "title" }
 ];
 
 // 读取本地 words.txt 文件，返回字符串数组
@@ -38,7 +38,7 @@ async function getHotSearchWordsFromSource(source, wordsBackup, apiInfos) {
   if (!apis.length) return [];
   for (const api of apis) {
     try {
-      console.log("请求第三方API", api);
+      console.log("Fetching API:", api);
       // 设置 10 秒超时
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000);
@@ -107,12 +107,12 @@ export default {
     const url = new URL(request.url);
     // 创建 API 配置实例
     const apiInfos = createApiInfos(env);
-    console.log("apiInfos:", apiInfos);
+    //console.log("apiInfos:", apiInfos);
     // 入口为 https://xxx.workers.dev/hotsearch?source=xxxx
     if (url.pathname.toLowerCase() === '/hotsearch') {
       const source = url.searchParams.get('source');
       const wordsBackup = await getWordsFromTxt();
-      console.log(wordsBackup.length);
+      //console.log(wordsBackup.length);
       let words = [];
       if (source) {
         if (source === 'all') {
