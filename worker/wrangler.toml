@@ -2,7 +2,7 @@
 compatibility_date = "2024-07-31"
 workers_dev = false
 
-name = "cnhotsearch-api-tools"
+name = "api-hotsearch"
 main = "worker.js"
 
 #[vars]
