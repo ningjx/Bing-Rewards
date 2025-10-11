@@ -5,9 +5,9 @@ workers_dev = false
 name = "cnhotsearch-api-tools"
 main = "worker.js"
 
-[vars]
-GMYA_KEY = " "
-Finlight_KEY = " "
+#[vars]
+#GMYA_KEY = " "
+#Finlight_KEY = " "
 
 [assets]
 directory = "./static"
