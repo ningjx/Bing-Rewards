@@ -2,12 +2,12 @@
 compatibility_date = "2024-07-31"
 workers_dev = false
 
-name = "cnhotsearch-api-tools"
+name = "api-hotsearch"
 main = "worker.js"
 
-[vars]
-GMYA_KEY = " "
-Finlight_KEY = " "
+#[vars]
+#GMYA_KEY = " "
+#Finlight_KEY = " "
 
 [assets]
 directory = "./static"
