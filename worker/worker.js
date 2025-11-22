@@ -8,6 +8,8 @@
  * Learn more at https://developers.cloudflare.com/workers/
  */
 import wordstxt from './static/words.txt';
+// 全局变量，存储API元数据
+let apiMetadataGlobal = [];
 // 热搜 API 信息配置
 const createApiInfos = (env) => [
   { name: "baidu", url: `https://api.gmya.net/Api/BaiduHot?format=json&appkey=${env.GMYA_KEY}`, keyword: "title" },
@@ -77,11 +79,26 @@ async function getHotSearchWordsFromSource(source, wordsBackup, apiInfos) {
         const matches = [...content.matchAll(regex)].map(m => m[0]);
         result.push(...matches);
       }
+      apiMetadataGlobal.push({
+        name: api.name,
+        domain: domain,
+        length: result.length,
+        status: 'success',
+      });
     } catch (e) {
       // 忽略错误，继续下一个 API
+      const urlObj = new URL(api.url);
+      const domain = urlObj.hostname;
+      apiMetadataGlobal.push({
+        name: api.name,
+        domain: domain,
+        length: 0,
+        status: 'error',
+      });
     }
     if (result.length > 0) break;
   }
+
   // 不足 50 条补充本地词
   if (result.length < 50 && wordsBackup && wordsBackup.length > 0) {
     for (let i = 0; i < 50 - result.length; i++) {
@@ -120,6 +137,8 @@ export default {
     //console.log("apiInfos:", apiInfos);
     // 入口为 https://xxx.workers.dev/hotsearch?source=xxxx
     if (url.pathname.toLowerCase() === '/hotsearch') {
+      // 清空全局变量
+      apiMetadataGlobal = [];
       const source = url.searchParams.get('source');
       const wordsBackup = await getWordsFromTxt();
       //console.log(wordsBackup.length);
@@ -139,14 +158,18 @@ export default {
       //  // 未指定 source，返回所有平台的热搜词（去重）
       //  words = await getALLHotSearchWords();
       //}
-      return new Response(JSON.stringify(words, null, 2), {
-        headers: {
-          'Content-Type': 'application/json; charset=utf-8',
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type',
-        }
-      });
+      const headers = {
+        'Content-Type': 'application/json; charset=utf-8',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type',
+      };
+      // 根据全局变量生成source-domain header
+      if (apiMetadataGlobal.length > 0) {
+        const sourceDomainValue = apiMetadataGlobal.map(m => `${m.name},${m.domain},${m.length},${m.status}`).join(';');
+        headers['source-domain'] = sourceDomainValue;
+      }
+      return new Response(JSON.stringify(words, null, 2), { headers });
     }
     // 其他路径返回欢迎信息
     return new Response("[]");
