@@ -86,7 +86,7 @@ async function getHotSearchWordsFromSource(source, wordsBackup, apiInfos) {
       apiMetadataGlobal.push({
         name: api.name,
         domain: domain,
-        length: matches.length,
+        length: result.length,
         status: response.statusText,
       });
     } catch (e) {
