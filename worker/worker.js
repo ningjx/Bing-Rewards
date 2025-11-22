@@ -39,6 +39,9 @@ async function getHotSearchWordsFromSource(source, wordsBackup, apiInfos) {
   const apis = apiInfos.filter(a => a.name === source);
   if (!apis.length) return [];
   for (const api of apis) {
+    // 提前提取域名，以便在成功和失败时都能使用
+    const urlObj = new URL(api.url);
+    const domain = urlObj.hostname;
     try {
       console.log("Fetching API:", api);
       // 设置 10 秒超时
@@ -82,17 +85,16 @@ async function getHotSearchWordsFromSource(source, wordsBackup, apiInfos) {
       apiMetadataGlobal.push({
         name: api.name,
         domain: domain,
-        length: result.length,
-        status: 'success',
+        length: matches.length,
+        status: response.statusText,
       });
     } catch (e) {
       // 忽略错误，继续下一个 API
-      const urlObj = new URL(api.url);
-      const domain = urlObj.hostname;
+      console.log("ERROR", e);
       apiMetadataGlobal.push({
         name: api.name,
         domain: domain,
-        length: 0,
+        length: result.length,
         status: 'error',
       });
     }
