@@ -75,11 +75,12 @@ async function getHotSearchWordsFromSource(source, wordsBackup, apiInfos) {
 
 
       clearTimeout(timeoutId);
+      let matches = []; // 初始化 matches，避免未定义错误
       if (response.ok) {
         const content = await response.text();
         // 构造正则，提取关键词
         const regex = new RegExp(`(?<="${api.keyword}"\\s*:\\s*")[^"]+(?=")`, 'g');
-        const matches = [...content.matchAll(regex)].map(m => m[0]);
+        matches = [...content.matchAll(regex)].map(m => m[0]);
         result.push(...matches);
       }
       apiMetadataGlobal.push({
