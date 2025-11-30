@@ -6,8 +6,8 @@ name = "api-hotsearch"
 main = "worker.js"
 
 #[vars]
-#GMYA_KEY = " "
-#Finlight_KEY = " "
+#GMYA_KEY =
+#Finlight_KEY =
 
 [assets]
 directory = "./static"
