@@ -33,6 +33,25 @@ async function getWordsFromTxt() {
   return wordstxt.split(/\r?\n/).filter(Boolean);
 }
 
+// 并发限制的映射函数：以固定并发数并行执行 iterator，保持结果顺序
+async function mapWithConcurrency(items, limit, iterator) {
+  const results = new Array(items.length);
+  let currentIndex = 0;
+  const workers = new Array(Math.min(limit, items.length)).fill(0).map(async () => {
+    while (true) {
+      const idx = currentIndex++;
+      if (idx >= items.length) break;
+      try {
+        results[idx] = await iterator(items[idx], idx);
+      } catch (e) {
+        results[idx] = undefined;
+      }
+    }
+  });
+  await Promise.all(workers);
+  return results;
+}
+
 // 根据 API 信息抓取热搜词
 async function getHotSearchWordsFromSource(source, wordsBackup, apiInfos) {
   const result = [];
@@ -116,7 +135,7 @@ async function getHotSearchWordsFromSource(source, wordsBackup, apiInfos) {
 async function getALLHotSearchWords(apiInfos) {
   const wordsBackup = await getWordsFromTxt();
   const apiNames = [...new Set(apiInfos.map(a => a.name))];
-  const allResults = await Promise.all(apiNames.map(name => getHotSearchWordsFromSource(name, wordsBackup, apiInfos)));
+  const allResults = await mapWithConcurrency(apiNames, 4, async (name) => await getHotSearchWordsFromSource(name, wordsBackup, apiInfos));
   // 扁平化、去重
   const allWords = Array.from(new Set(allResults.flat().filter(Boolean)));
   return allWords;
@@ -126,7 +145,7 @@ async function getALLHotSearchWords(apiInfos) {
 async function getCNHotSearchWords(apiInfos) {
   const wordsBackup = await getWordsFromTxt();
   const apiNames = [...new Set(apiInfos.map(a => a.name).filter(name => name !== "en"))];
-  const allResults = await Promise.all(apiNames.map(name => getHotSearchWordsFromSource(name, wordsBackup, apiInfos)));
+  const allResults = await mapWithConcurrency(apiNames, 4, async (name) => await getHotSearchWordsFromSource(name, wordsBackup, apiInfos));
   // 扁平化、去重
   const allWords = Array.from(new Set(allResults.flat().filter(Boolean)));
   return allWords;
