@@ -116,7 +116,7 @@ async function getHotSearchWordsFromSource(source, wordsBackup, apiInfos) {
         name: api.name,
         domain: domain,
         length: result.length,
-        status: response.statusText,
+        status: response.statusText || 'Failed',
       });
     } catch (e) {
       // 忽略错误，继续下一个 API
