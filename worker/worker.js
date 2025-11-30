@@ -65,7 +65,7 @@ async function getHotSearchWordsFromSource(source, wordsBackup, apiInfos) {
       console.log("Fetching API:", api);
       // 设置 10 秒超时
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 20000);
+      const timeoutId = setTimeout(() => controller.abort(), 80000);
 
 
       // 构建请求配置（尽量模仿浏览器请求）
