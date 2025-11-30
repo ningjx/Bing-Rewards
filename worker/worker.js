@@ -68,26 +68,36 @@ async function getHotSearchWordsFromSource(source, wordsBackup, apiInfos) {
       const timeoutId = setTimeout(() => controller.abort(), 20000);
 
 
-      // 构建请求配置
-      const requestConfig = {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0',
-          'Accept': 'application/json,text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-          'accept-encoding': 'gzip, deflate, br, zstd',
-          'accept-language': 'zh-CN,zh;q=0.9',
-        },
-        signal: controller.signal
+      // 构建请求配置（尽量模仿浏览器请求）
+      const defaultHeaders = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+        'Accept-Language': 'zh-CN,zh;q=0.9',
+        'Sec-CH-UA': '"Chromium";v="120", "Microsoft Edge";v="120", "Not A Brand";v="99"',
+        'Sec-CH-UA-Mobile': '?0',
+        'Sec-CH-UA-Platform': '"Windows"',
+        'Referer': `${urlObj.protocol}//${domain}/`,
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache'
       };
 
-      // 如果API信息包含自定义headers，则合并到请求headers中
-      if (api.headers && typeof api.headers === 'object') {
-        requestConfig.headers = { ...requestConfig.headers, ...api.headers };
-      }
+      const method = api.method ? String(api.method).toUpperCase() : (api.body ? 'POST' : 'GET');
 
-      // 如果API信息包含body，则使用POST请求并添加body
+      const requestConfig = {
+        method,
+        headers: { ...defaultHeaders, ...(api.headers || {}) },
+        signal: controller.signal,
+        redirect: 'follow'
+      };
+
+      // 如果 API 指定了 body，使用 body（并确保 Content-Type）
       if (api.body) {
-        requestConfig.method = 'POST';
         requestConfig.body = api.body;
+        const hasContentType = Object.keys(requestConfig.headers).some(h => h.toLowerCase() === 'content-type');
+        if (!hasContentType) {
+          requestConfig.headers['Content-Type'] = 'application/json';
+        }
       }
 
       const response = await fetch(api.url, requestConfig);
