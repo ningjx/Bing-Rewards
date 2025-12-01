@@ -22,8 +22,8 @@ const createApiInfos = (env) => [
   { name: "toutiao", url: "https://api.pearktrue.cn/api/dailyhot?title=今日头条", keyword: "title" },
   { name: "toutiao", url: "https://free.wqwlkj.cn/wqwlapi/jrtt_hot.php?type=json", keyword: "name" },
 //  { name: "weibo", url: `https://api.gmya.net/Api/WeiBoHot?format=json&appkey=${env.GMYA_KEY}`, keyword: "title" },
-  { name: "weibo", url: "https://api.pearktrue.cn/api/dailyhot?title=微博", keyword: "title" },
-  { name: "weibo", url: "https://zj.v.api.aa1.cn/api/weibo-rs/", keyword: "title" },
+//  { name: "weibo", url: "https://api.pearktrue.cn/api/dailyhot?title=网易新闻", keyword: "title" },
+//  { name: "weibo", url: "https://zj.v.api.aa1.cn/api/weibo-rs/", keyword: "title" },
 //  { name: "zhihu", url: `https://api.gmya.net/Api/ZhiHuHot?format=json&appkey=${env.GMYA_KEY}`, keyword: "title" },
   { name: "zhihu", url: "https://api.pearktrue.cn/api/dailyhot?title=知乎", keyword: "title" },
   { name: "zhihu", url: "https://v.api.aa1.cn/api/zhihu-news/index.php?aa1=xiarou", keyword: "title" },
@@ -33,6 +33,7 @@ const createApiInfos = (env) => [
 //  { name: "sougou", url: `https://api.gmya.net/Api/SoGouHot?format=json&appkey=${env.GMYA_KEY}`, keyword: "title" },
   { name: "tieba", url: "https://api.pearktrue.cn/api/dailyhot?title=百度贴吧", keyword: "title" },
   { name: "ithome", url: "https://api.pearktrue.cn/api/dailyhot?title=IT之家", keyword: "title" },
+  { name: "weibo", url: "https://api.pearktrue.cn/api/dailyhot?title=网易新闻", keyword: "title" },
 //  { name: "jianshu", url: "https://api.pearktrue.cn/api/dailyhot?title=简书", keyword: "title" },
   { name: "en", url: `https://api.finlight.me/v2/articles`, headers: { 'Content-Type': 'application/json', 'accept': 'application/json', 'X-API-KEY': env.Finlight_KEY }, body: "{\"pageSize\": \"100\"}", keyword: "title" }
 ];
