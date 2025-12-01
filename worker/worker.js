@@ -33,7 +33,7 @@ const createApiInfos = (env) => [
 //  { name: "sougou", url: `https://api.gmya.net/Api/SoGouHot?format=json&appkey=${env.GMYA_KEY}`, keyword: "title" },
   { name: "tieba", url: "https://api.pearktrue.cn/api/dailyhot?title=百度贴吧", keyword: "title" },
   { name: "ithome", url: "https://api.pearktrue.cn/api/dailyhot?title=IT之家", keyword: "title" },
-  { name: "weibo", url: "https://api.pearktrue.cn/api/dailyhot?title=网易新闻", keyword: "title" },
+  { name: "netease", url: "https://api.pearktrue.cn/api/dailyhot?title=网易新闻", keyword: "title" },
 //  { name: "jianshu", url: "https://api.pearktrue.cn/api/dailyhot?title=简书", keyword: "title" },
   { name: "en", url: `https://api.finlight.me/v2/articles`, headers: { 'Content-Type': 'application/json', 'accept': 'application/json', 'X-API-KEY': env.Finlight_KEY }, body: "{\"pageSize\": \"100\"}", keyword: "title" }
 ];
