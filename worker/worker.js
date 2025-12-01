@@ -120,7 +120,11 @@ async function getHotSearchWordsFromSource(source, wordsBackup, apiInfos) {
         // 构造正则，提取关键词
         const regex = new RegExp(`(?<="${api.keyword}"\\s*:\\s*")[^"]+(?=")`, 'g');
         matches = [...content.matchAll(regex)].map(m => m[0]);
-        result.push(...matches);
+        // 去掉第一个匹配项
+        if (matches && matches.length > 0) {
+          matches = matches.slice(1);
+          result.push(...matches);
+        }
       }
       apiMetadataGlobal.push({
         name: api.name,
