@@ -186,7 +186,7 @@ export default async function handler(req, res) {
   const apiInfos = createApiInfos();
   
   // 入口为 /api/hotsearch?source=xxxx
-  if (pathname.toLowerCase() === '/api/hotsearch') {
+  if (pathname.toLowerCase() === '/hotsearch') {
     // 清空全局变量
     apiMetadataGlobal = [];
     const source = searchParams.get('source');
