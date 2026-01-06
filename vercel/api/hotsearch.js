@@ -162,7 +162,7 @@ async function getHotSearchWordsFromSource(source, wordsBackup, apiInfos) {
 async function getALLHotSearchWords(apiInfos) {
   const wordsBackup = await getWordsFromTxt();
   const apiNames = [...new Set(apiInfos.map(a => a.name))];
-  const allResults = await mapWithConcurrency(apiNames, 4, async (name) => await getHotSearchWordsFromSource(name, wordsBackup, apiInfos));
+  const allResults = await mapWithConcurrency(apiNames, 2, async (name) => await getHotSearchWordsFromSource(name, wordsBackup, apiInfos));
   // 扁平化、去重
   const allWords = Array.from(new Set(allResults.flat().filter(Boolean)));
   return allWords;
@@ -172,7 +172,7 @@ async function getALLHotSearchWords(apiInfos) {
 async function getCNHotSearchWords(apiInfos) {
   const wordsBackup = await getWordsFromTxt();
   const apiNames = [...new Set(apiInfos.map(a => a.name).filter(name => name !== "en"))];
-  const allResults = await mapWithConcurrency(apiNames, 4, async (name) => await getHotSearchWordsFromSource(name, wordsBackup, apiInfos));
+  const allResults = await mapWithConcurrency(apiNames, 2, async (name) => await getHotSearchWordsFromSource(name, wordsBackup, apiInfos));
   // 扁平化、去重
   const allWords = Array.from(new Set(allResults.flat().filter(Boolean)));
   return allWords;
