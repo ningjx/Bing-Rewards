@@ -11,6 +11,7 @@ const createApiInfos = () => [
   { name: "baidu", url: "https://api.pearktrue.cn/api/dailyhot?title=百度", keyword: "title" },
   { name: "baidu", url: "https://zj.v.api.aa1.cn/api/baidu-rs/", keyword: "title" },
   { name: "baidu", url: "https://api.logoi.cn/API/hotlist.php?title=百度", keyword: "title" },
+  { name: "baidu", url: "https://cn.apihz.cn/api/xinwen/baidu.php?id=88888888&key=88888888", keyword: "word" },
   { name: "douyin", url: "https://api.pearktrue.cn/api/dailyhot?title=抖音", keyword: "title" },
   { name: "douyin", url: "https://v.api.aa1.cn/api/douyin-hot/", keyword: "word" },
   { name: "douyin", url: "https://api.logoi.cn/API/hotlist.php?title=抖音", keyword: "title" },
