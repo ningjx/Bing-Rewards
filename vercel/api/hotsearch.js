@@ -179,6 +179,12 @@ async function getCNHotSearchWords(apiInfos) {
   return allWords;
 }
 
+// 处理数据内容，去除空格和标点符号，只保留中英文和数字
+function cleanTextContent(text) {
+  // 使用正则表达式匹配中文字符、英文字母和数字，去除其他所有字符
+  return text.replace(/[^一-龥a-zA-Z0-9]/g, '');
+}
+
 // Vercel API路由处理函数
 export default async function handler(req, res) {
   const { pathname, searchParams } = new URL(req.url, `http://${req.headers.host}`);
@@ -229,7 +235,9 @@ export default async function handler(req, res) {
       res.setHeader('source-domain', sourceDomainValue);
     }
     
-    return res.status(200).json(words);
+    // 在返回结果前处理所有数据内容，去除空格和标点符号
+    const cleanedWords = words.map(word => cleanTextContent(word));
+    return res.status(200).json(cleanedWords);
   }
   
   // 其他路径返回欢迎信息

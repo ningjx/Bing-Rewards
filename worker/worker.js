@@ -184,6 +184,12 @@ async function getCNHotSearchWords(apiInfos) {
   return allWords;
 }
 
+// 处理数据内容，去除空格和标点符号，只保留中英文和数字
+function cleanTextContent(text) {
+  // 使用正则表达式匹配中文字符、英文字母和数字，去除其他所有字符
+  return text.replace(/[^一-龥a-zA-Z0-9]/g, '');
+}
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
@@ -224,7 +230,9 @@ export default {
         const sourceDomainValue = apiMetadataGlobal.map(m => `${m.name},${m.domain},${m.length},${m.status}`).join(';');
         headers['source-domain'] = sourceDomainValue;
       }
-      return new Response(JSON.stringify(words, null, 2), { headers });
+      // 在返回结果前处理所有数据内容，去除空格和标点符号
+      const cleanedWords = words.map(word => cleanTextContent(word));
+      return new Response(JSON.stringify(cleanedWords, null, 2), { headers });
     }
     // 其他路径返回欢迎信息
     return new Response("[]");
