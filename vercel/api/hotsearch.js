@@ -78,7 +78,8 @@ async function getHotSearchWordsFromSource(source, wordsBackup, apiInfos) {
     const urlObj = new URL(api.url);
     const domain = urlObj.hostname;
     try {
-      console.log("Fetching API:", api);
+      console.log(`[API] 开始请求: ${api.name} (${domain})`);
+      const requestStartTime = Date.now();
       // 设置 10 秒超时
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 80000);
@@ -116,37 +117,53 @@ async function getHotSearchWordsFromSource(source, wordsBackup, apiInfos) {
       }
 
       const response = await fetch(api.url, requestConfig);
+      const requestDuration = Date.now() - requestStartTime;
 
       clearTimeout(timeoutId);
+      console.log(`[API] 响应: ${api.name} - 状态 ${response.status} ${response.statusText} - 耗时 ${requestDuration}ms`);
+      
       let matches = []; // 初始化 matches，避免未定义错误
       if (response.ok) {
         const content = await response.text();
+        console.log(`[API] 响应体大小: ${content.length} bytes`);
         // 构造正则，提取关键词
         const regex = new RegExp(`(?<="${api.keyword}"\\s*:\\s*")[^"]+(?=")`, 'g');
         matches = [...content.matchAll(regex)].map(m => m[0]);
+        console.log(`[API] 正则匹配: ${matches.length} 条 (关键词: ${api.keyword})`);
         // 去掉第一个匹配项
         if (matches && matches.length > 0) {
           matches = matches.slice(1);
           result.push(...matches);
+          console.log(`[API] 清理后: ${matches.length} 条，累计: ${result.length} 条`);
         }
+      } else {
+        console.error(`[API] 请求失败: ${api.name} - ${response.status} ${response.statusText}`);
       }
       apiMetadataGlobal.push({
         name: api.name,
         domain: domain,
         length: result.length,
         status: response.statusText || 'Failed',
+        duration: requestDuration
       });
     } catch (e) {
       // 忽略错误，继续下一个 API
-      console.log("ERROR", e);
+      const errorDuration = Date.now() - requestStartTime;
+      console.error(`[API] 异常: ${api.name} - ${e.name}: ${e.message} - 耗时 ${errorDuration}ms`);
+      console.error(`[API] 堆栈:`, e.stack);
       apiMetadataGlobal.push({
         name: api.name,
         domain: domain || 'unknown',
         length: result.length,
-        status: 'error',
+        status: `error: ${e.name}`,
+        duration: errorDuration,
+        error: e.message
       });
     }
-    if (result.length > 0) break;
+    if (result.length > 0) {
+      console.log(`[API] ${api.name} 已获得足够数据 (${result.length} 条)，跳过后续`);
+      break;
+    }
   }
 
   // 不足 50 条补充本地词
