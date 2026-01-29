@@ -212,23 +212,13 @@ export default async function handler(req, res) {
       }
     }
     
-    const headers = {
-      'Content-Type': 'application/json; charset=utf-8',
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
-    };
-    
-    // 根据全局变量生成source-domain header
-    if (apiMetadataGlobal.length > 0) {
-      const sourceDomainValue = apiMetadataGlobal.map(m => `${m.name},${m.domain},${m.length},${m.status}`).join(';');
-      headers['source-domain'] = sourceDomainValue;
-    }
-    
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+    // 缓存设置：10 小时（36000 秒）
+    res.setHeader('Cache-Control', 'public, max-age=36000, s-maxage=36000');
     
     if (apiMetadataGlobal.length > 0) {
       const sourceDomainValue = apiMetadataGlobal.map(m => `${m.name},${m.domain},${m.length},${m.status}`).join(';');

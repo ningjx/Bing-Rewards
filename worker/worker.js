@@ -224,6 +224,7 @@ export default {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type',
+        'Cache-Control': 'public, max-age=36000, s-maxage=36000'
       };
       // 根据全局变量生成source-domain header
       if (apiMetadataGlobal.length > 0) {
